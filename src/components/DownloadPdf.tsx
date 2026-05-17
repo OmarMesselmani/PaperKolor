@@ -36,21 +36,7 @@ export default function DownloadPdf({ imageUrl, title }: { imageUrl: string, tit
     <button 
       onClick={handleDownload}
       disabled={loading}
-      className="btn-secondary" 
-      style={{
-        background: 'var(--secondary)', 
-        color: 'white', 
-        border: 'none', 
-        padding: '1rem 2rem', 
-        borderRadius: '10px', 
-        cursor: loading ? 'not-allowed' : 'pointer', 
-        fontSize: '1.1rem', 
-        fontWeight: 'bold',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '0.5rem',
-        opacity: loading ? 0.7 : 1
-      }}
+      className={`bg-orange-500 text-white border-none py-4 px-8 rounded-xl text-lg font-bold flex items-center gap-2 shadow-sm hover:shadow-md transition-all ${loading ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:bg-orange-600'}`}
     >
       <span>📥</span> {loading ? 'Preparing...' : 'Download PDF'}
     </button>

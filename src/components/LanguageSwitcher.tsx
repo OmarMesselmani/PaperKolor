@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 
 const USFlag = () => (
-  <svg className="flag-icon" viewBox="0 0 741 390">
+  <svg className="w-6 h-[18px] rounded-sm object-cover shadow-[0_1px_2px_rgba(0,0,0,0.1)] shrink-0" viewBox="0 0 741 390">
     <rect width="741" height="390" fill="#bf0a30"/>
     <path d="M0 30h741M0 90h741M0 150h741M0 210h741M0 270h741M0 330h741" stroke="#fff" strokeWidth="30"/>
     <rect width="296" height="210" fill="#002868"/>
@@ -18,7 +18,7 @@ const USFlag = () => (
 );
 
 const FranceFlag = () => (
-  <svg className="flag-icon" viewBox="0 0 3 2">
+  <svg className="w-6 h-[18px] rounded-sm object-cover shadow-[0_1px_2px_rgba(0,0,0,0.1)] shrink-0" viewBox="0 0 3 2">
     <rect width="1" height="2" fill="#002395"/>
     <rect x="1" width="1" height="2" fill="#fff"/>
     <rect x="2" width="1" height="2" fill="#ed2939"/>
@@ -26,7 +26,7 @@ const FranceFlag = () => (
 );
 
 const ArabLeagueFlag = () => (
-  <svg className="flag-icon" viewBox="0 0 600 400">
+  <svg className="w-6 h-[18px] rounded-sm object-cover shadow-[0_1px_2px_rgba(0,0,0,0.1)] shrink-0" viewBox="0 0 600 400">
     <rect width="600" height="400" fill="#007A33"/>
     <circle cx="300" cy="200" r="90" fill="none" stroke="white" strokeWidth="6"/>
     <path d="M275 200 A25 25 0 1 0 325 200 A20 20 0 1 1 275 200 Z" fill="white" transform="translate(0, 5)"/>
@@ -65,9 +65,9 @@ export default function LanguageSwitcher() {
   };
 
   return (
-    <div className="lang-switcher-container" ref={dropdownRef}>
+    <div className="relative" ref={dropdownRef}>
       <button 
-        className="lang-button" 
+        className="flex items-center justify-between gap-3 px-4 py-2.5 bg-white border border-purple-600/10 rounded-xl cursor-pointer font-semibold text-gray-800 transition-all duration-300 shadow-sm w-[150px] font-inherit hover:border-purple-600 hover:shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] hover:-translate-y-[1px]" 
         onClick={() => setIsOpen(!isOpen)}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -85,22 +85,18 @@ export default function LanguageSwitcher() {
           strokeWidth="3" 
           strokeLinecap="round" 
           strokeLinejoin="round"
-          style={{ 
-            marginLeft: '4px', 
-            transform: isOpen ? 'rotate(180deg)' : 'rotate(0)',
-            transition: 'transform 0.2s ease'
-          }}
+          className={`ml-1 transition-transform duration-200 ease-in-out ${isOpen ? 'rotate-180' : 'rotate-0'}`}
         >
           <path d="m6 9 6 6 6-6"/>
         </svg>
       </button>
 
       {isOpen && (
-        <div className="lang-dropdown" role="listbox">
+        <div className="absolute top-[calc(100%+8px)] right-0 rtl:right-auto rtl:left-0 w-[150px] bg-white/95 backdrop-blur-md rounded-2xl border border-purple-600/10 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] overflow-hidden z-[1000]" role="listbox">
           {languages.map((lang) => (
             <button
               key={lang.code}
-              className={`lang-option ${selectedLang.code === lang.code ? 'active' : ''}`}
+              className={`flex items-center gap-3 px-4 py-3 cursor-pointer transition-all duration-200 w-full border-none bg-transparent font-inherit text-[0.95rem] text-left rtl:text-right rtl:flex-row-reverse text-gray-800 hover:bg-purple-600/5 hover:text-purple-600 ${selectedLang.code === lang.code ? 'bg-purple-600/10 text-purple-600 font-bold' : ''}`}
               onClick={() => handleSelect(lang)}
               role="option"
               aria-selected={selectedLang.code === lang.code}

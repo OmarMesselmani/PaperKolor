@@ -7,6 +7,9 @@ export interface ColoringPage {
   categorySlug: string;
   subCategorySlug?: string;
   description?: string;
+  views?: number;
+  downloads?: number;
+  likes?: number;
 }
 
 export interface Category {
@@ -15,5 +18,8 @@ export interface Category {
   slug: string;
   description?: string;
   imageUrl?: string;
-  parentSlug?: string; // لتمثيل الأصناف الفرعية
+  parentSlug?: string;
+  views?: number;
+  downloads?: number;
+  likes?: number;
 }

@@ -2,19 +2,15 @@ import Link from "next/link";
 
 export default function Breadcrumbs({ paths }: { paths: { title: string, href: string }[] }) {
   return (
-    <nav className="container no-print" aria-label="Breadcrumb" style={{ paddingBottom: 0, marginTop: '1rem' }}>
-      <ol style={{ listStyle: 'none', padding: 0, display: 'flex', gap: '0.5rem', fontSize: '0.9rem', color: '#636e72' }}>
+    <nav className="max-w-[1240px] mx-auto px-6 print:hidden mt-4 pb-0" aria-label="Breadcrumb">
+      <ol className="list-none p-0 flex flex-wrap gap-2 text-sm text-gray-500">
         <li>
-          <Link href="/" style={{ color: 'var(--primary)', textDecoration: 'none' }}>Home</Link>
+          <Link href="/" className="text-purple-600 no-underline hover:underline">Home</Link>
         </li>
         {paths.map((path, index) => (
-          <li key={index} style={{ display: 'flex', gap: '0.5rem' }}>
+          <li key={index} className="flex gap-2">
             <span>/</span>
-            <Link href={path.href} style={{ 
-              color: index === paths.length - 1 ? 'inherit' : 'var(--primary)', 
-              textDecoration: 'none',
-              pointerEvents: index === paths.length - 1 ? 'none' : 'auto'
-            }}>
+            <Link href={path.href} className={`no-underline ${index === paths.length - 1 ? 'text-inherit pointer-events-none' : 'text-purple-600 hover:underline'}`}>
               {path.title}
             </Link>
           </li>
