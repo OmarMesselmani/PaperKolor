@@ -10,6 +10,7 @@ export interface ColoringPage {
   views?: number;
   downloads?: number;
   likes?: number;
+  pdfUrl?: string;
 }
 
 export interface Category {

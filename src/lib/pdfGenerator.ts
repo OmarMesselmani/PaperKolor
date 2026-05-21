@@ -20,10 +20,7 @@ export async function generatePdfFromImage(imageUrl: string, title: string): Pro
 
   doc.addImage(imageData, "PNG", 0, 0, pdfWidth, pdfHeight);
   
-  // إضافة عنوان في أسفل الصفحة
-  doc.setFontSize(10);
-  doc.setTextColor(150);
-  doc.text(`PaperKolor - ${title}`, pdfWidth / 2, 290, { align: "center" });
+
 
   return new Blob([doc.output("arraybuffer")], { type: "application/pdf" });
 }

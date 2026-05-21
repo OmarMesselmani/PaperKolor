@@ -32,3 +32,31 @@
   background: rgba(124, 58, 237, 0.2);
 }
 
+@media print {
+  @page {
+    margin: 0;
+  }
+  
+  html, body {
+    height: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .printable-area {
+    visibility: visible !important;
+    position: absolute;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    display: block !important;
+  }
+}
+

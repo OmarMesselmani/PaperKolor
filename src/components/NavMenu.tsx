@@ -123,7 +123,7 @@ export default function NavMenu({ categories }: { categories: Category[] }) {
                     {subCats.map(sub => (
                       <Link
                         key={sub.id}
-                        href={`/${sub.slug}`}
+                        href={`/${sub.parentSlug}/${sub.slug}`}
                         className="block px-4 py-2.5 text-sm font-semibold text-gray-500 hover:text-purple-600 hover:bg-purple-600/5 rounded-xl transition-all"
                         onClick={() => setIsOpen(false)}
                       >

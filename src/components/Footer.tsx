@@ -49,9 +49,7 @@ export default function Footer({ categories = [] }: FooterProps) {
           {/* Brand Info & Vision Column */}
           <div className="flex flex-col space-y-6">
             <Link href="/" className="inline-block no-underline">
-              <span className="bg-gradient-to-r from-purple-400 to-orange-400 bg-clip-text text-transparent text-3xl font-black tracking-wide">
-                🎨 PaperKolor
-              </span>
+              <img src="/logoWhite.png" alt="PaperKolor" className="h-8 w-auto object-contain" />
             </Link>
             <p className="text-purple-200/70 text-sm leading-relaxed max-w-sm">
               Bringing colors to life! Explore our curated universe of high-quality printable coloring pages. Perfect for developing kids' creativity or enjoying a relaxing artistic escape for adults.
@@ -119,7 +117,7 @@ export default function Footer({ categories = [] }: FooterProps) {
               {popularCategories.map((category) => (
                 <li key={category.id}>
                   <Link 
-                    href={`/${category.slug}`}
+                    href={category.parentSlug ? `/${category.parentSlug}/${category.slug}` : `/${category.slug}`}
                     className="group text-purple-200/70 hover:text-orange-400 hover:translate-x-2 transition-all duration-300 flex items-center gap-2 text-sm font-bold no-underline"
                   >
                     <span className="text-purple-400 group-hover:text-orange-400 transition-colors duration-300 text-xs">✦</span>

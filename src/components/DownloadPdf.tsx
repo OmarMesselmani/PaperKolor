@@ -2,12 +2,21 @@
 
 import { useState } from 'react';
 
-export default function DownloadPdf({ imageUrl, title }: { imageUrl: string, title: string }) {
+export default function DownloadPdf({ imageUrl, title, pdfUrl }: { imageUrl: string, title: string, pdfUrl?: string }) {
   const [loading, setLoading] = useState(false);
 
   const handleDownload = async () => {
     setLoading(true);
     try {
+      if (pdfUrl) {
+        const a = document.createElement('a');
+        a.href = pdfUrl;
+        a.download = `${title}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        return;
+      }
       // سنقوم باستدعاء الـ API الذي سننشئه لاحقاً
       const response = await fetch('/api/download', {
         method: 'POST',
