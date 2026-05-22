@@ -6,7 +6,6 @@ import DownloadPdf from "@/components/DownloadPdf";
 import DownloadImageButton from "@/components/DownloadImageButton";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import LikeButton from "@/components/LikeButton";
-import DownloadImage from "@/components/DownloadImage";
 import RelatedCard from "@/components/RelatedCard";
 import { notFound } from "next/navigation";
 
@@ -53,7 +52,6 @@ export default async function DynamicPage({ params }: { params: Promise<{ slug: 
 
               <div className="flex gap-4 flex-wrap print:hidden">
                 <PrintButton />
-                <DownloadImage imageUrl={coloringPage.imageUrl} title={coloringPage.title} />
                 <DownloadPdf imageUrl={coloringPage.imageUrl} title={coloringPage.title} pdfUrl={coloringPage.pdfUrl} />
                 <DownloadImageButton imageUrl={coloringPage.imageUrl} title={coloringPage.title} />
                 <LikeButton initialLikes={coloringPage.likes} />
