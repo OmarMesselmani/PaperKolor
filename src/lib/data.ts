@@ -253,6 +253,19 @@ export const coloringPages: ColoringPage[] = [
     downloads: 730,
     likes: 350,
   },
+  {
+    id: "birds-4",
+    title: "Cute Pigeon",
+    slug: "cute-pigeon-bird",
+    imageUrl: "/images/Cute pigeon bird.jpg",
+    thumbnailUrl: "/images/Cute pigeon bird.jpg",
+    categorySlug: "animals",
+    subCategorySlug: "birds",
+    description: "A cute pigeon bird coloring page for kids.",
+    views: 870,
+    downloads: 540,
+    likes: 260,
+  },
 ];
 
 export async function getAllCategories() {
@@ -275,4 +288,19 @@ export async function getColoringPages(categorySlug: string) {
 
 export async function getColoringPageBySlug(slug: string) {
   return coloringPages.find((p) => p.slug === slug);
+}
+
+export async function searchColoringPages(query: string) {
+  const q = query.toLowerCase();
+  const matchedCategories = categories
+    .filter(c => c.title.toLowerCase().includes(q))
+    .map(c => c.slug);
+
+  return coloringPages.filter(p => {
+    if (p.title.toLowerCase().includes(q)) return true;
+    if (p.description?.toLowerCase().includes(q)) return true;
+    if (matchedCategories.includes(p.categorySlug)) return true;
+    if (p.subCategorySlug && matchedCategories.includes(p.subCategorySlug)) return true;
+    return false;
+  });
 }

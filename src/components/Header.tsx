@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import LanguageSwitcher from "./LanguageSwitcher";
 import SearchBar from "./SearchBar";
 import NavMenu from "./NavMenu";
@@ -13,7 +14,7 @@ export default function Header({ categories }: { categories: Category[] }) {
             <div className="flex items-center gap-6 md:gap-8">
               <NavMenu categories={categories} />
               <Link href="/" className="no-underline flex items-center">
-                <img src="/logo.png" alt="PaperKolor" className="h-6 w-auto object-contain" />
+                <Image src="/logo.png" alt="KolorPaper" width={180} height={32} className="h-8 w-auto object-contain" />
               </Link>
             </div>
           </div>

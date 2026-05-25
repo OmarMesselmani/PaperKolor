@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import BackToTop from "@/components/BackToTop";
 import { getAllCategories } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "PaperKolor - Coloring World for Kids",
+  title: "KolorPaper - Coloring World for Kids",
   description: "The best site for downloading and printing high-quality coloring pages for kids and adults.",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default async function RootLayout({
@@ -29,6 +33,7 @@ export default async function RootLayout({
         <Header categories={categories} />
         <main>{children}</main>
         <Footer categories={categories} />
+        <BackToTop />
       </body>
     </html>
   );

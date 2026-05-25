@@ -1,4 +1,5 @@
 import { getCategoryBySlug, getCategories, getColoringPages, getColoringPageBySlug } from "@/lib/data";
+import Image from "next/image";
 import CategoryCard from "@/components/CategoryCard";
 import ColoringCard from "@/components/ColoringCard";
 import PrintButton from "@/components/PrintButton";
@@ -7,6 +8,8 @@ import DownloadImageButton from "@/components/DownloadImageButton";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import LikeButton from "@/components/LikeButton";
 import RelatedCard from "@/components/RelatedCard";
+import SeeMore from "@/components/SeeMore";
+import PageStats from "@/components/PageStats";
 import { notFound } from "next/navigation";
 
 export default async function DynamicPage({ params }: { params: Promise<{ slug: string[] }> }) {
@@ -42,12 +45,12 @@ export default async function DynamicPage({ params }: { params: Promise<{ slug: 
           <div className="flex gap-8 items-start flex-wrap lg:flex-nowrap mt-8">
             {/* Image Column */}
             <div className="flex-[0.9] max-w-[450px] min-w-[300px] w-full bg-white p-6 rounded-3xl shadow-[0_10px_15px_-3px_rgba(124,58,237,0.1),0_4px_6px_-2px_rgba(124,58,237,0.05)] border border-black/5">
-              <img src={coloringPage.imageUrl} alt={coloringPage.title} className="w-full h-auto rounded-xl block printable-area" />
+              <Image src={coloringPage.imageUrl} alt={coloringPage.title} width={450} height={600} className="w-full h-auto rounded-xl block printable-area" />
             </div>
 
             {/* Info Column */}
             <div className="flex-1 min-w-[320px] pt-4">
-              <h2 className="text-5xl font-black bg-gradient-to-br from-purple-600 to-orange-500 bg-clip-text text-transparent mb-6">{coloringPage.title}</h2>
+              <h2 className="text-4xl font-bold text-[#0F0728] mb-6">{coloringPage.title}</h2>
               <p className="text-lg leading-relaxed text-gray-500 mb-10">{coloringPage.description}</p>
 
               <div className="flex gap-4 flex-wrap print:hidden">
@@ -56,6 +59,8 @@ export default async function DynamicPage({ params }: { params: Promise<{ slug: 
                 <DownloadImageButton imageUrl={coloringPage.imageUrl} title={coloringPage.title} />
                 <LikeButton initialLikes={coloringPage.likes} />
               </div>
+
+              <PageStats views={coloringPage.views} downloads={coloringPage.downloads} likes={coloringPage.likes} className="mt-6" />
             </div>
 
             {/* Sidebar Column */}
@@ -73,6 +78,8 @@ export default async function DynamicPage({ params }: { params: Promise<{ slug: 
             )}
           </div>
         </div>
+
+        <SeeMore currentPage={coloringPage} />
       </>
     );
   }
@@ -93,7 +100,7 @@ export default async function DynamicPage({ params }: { params: Promise<{ slug: 
           {subCategories.length > 0 && (
             <div className="mb-16">
               <h3 className="text-3xl font-bold mb-6 text-gray-800 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-6 before:bg-purple-600 before:rounded-sm">Subcategories</h3>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-8 pb-16">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-16">
                 {subCategories.map(sub => <CategoryCard key={sub.id} category={sub} />)}
               </div>
             </div>
@@ -102,7 +109,7 @@ export default async function DynamicPage({ params }: { params: Promise<{ slug: 
           {pages.length > 0 && (
             <div className="mb-16">
               <h3 className="text-3xl font-bold mb-6 text-gray-800 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-6 before:bg-purple-600 before:rounded-sm">Coloring Pages</h3>
-              <div className="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-8 pb-16">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-16">
                 {pages.map(page => <ColoringCard key={page.id} page={page} />)}
               </div>
             </div>
