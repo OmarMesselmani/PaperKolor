@@ -1,11 +1,29 @@
-const stats = [
-  { value: "5,000+", label: "Coloring Pages" },
-  { value: "50+",    label: "Categories" },
-  { value: "100%",   label: "Free Forever" },
-  { value: "1M+",    label: "Downloads" },
-];
+export default async function StatsBar() {
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  let statsData = { totalPages: 0, totalCategories: 0, totalDownloads: 0 };
+  
+  try {
+    const res = await fetch(`${API_URL}/stats`, { next: { revalidate: 60 } });
+    if (res.ok) {
+      statsData = await res.json();
+    }
+  } catch (error) {
+    console.error("Failed to fetch public stats:", error);
+  }
 
-export default function StatsBar() {
+  const formatCount = (n: number) => {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M+`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k+`;
+    return String(n);
+  };
+
+  const stats = [
+    { value: formatCount(statsData.totalPages), label: "Coloring Pages" },
+    { value: formatCount(statsData.totalCategories), label: "Categories" },
+    { value: "100%",   label: "Free Forever" },
+    { value: formatCount(statsData.totalDownloads), label: "Downloads" },
+  ];
+
   return (
     <section className="w-full max-w-[1240px] mx-auto px-6 mb-14">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

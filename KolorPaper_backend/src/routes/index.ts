@@ -46,6 +46,10 @@ router.post("/pages/:slug/view", recordView);
 router.post("/pages/:slug/download", recordDownload);
 router.post("/pages/:slug/like", recordLike);
 
+// Public Stats
+import { getPublicStats } from "../controllers/pageController.js";
+router.get("/stats", getPublicStats);
+
 // Contact Submission
 router.post("/contact", submitMessage);
 

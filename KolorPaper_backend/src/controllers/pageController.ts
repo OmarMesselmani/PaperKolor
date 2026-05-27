@@ -213,6 +213,28 @@ export const recordLike = async (req: Request, res: Response): Promise<any> => {
   }
 };
 
+// GET /api/stats
+export const getPublicStats = async (req: Request, res: Response): Promise<any> => {
+  try {
+    const totalPages = await prisma.coloringPage.count({ where: { published: true } });
+    const totalCategories = await prisma.category.count();
+    
+    const pageMetrics = await prisma.coloringPage.aggregate({
+      where: { published: true },
+      _sum: { downloads: true }
+    });
+
+    res.json({
+      totalPages,
+      totalCategories,
+      totalDownloads: pageMetrics._sum.downloads || 0
+    });
+  } catch (error) {
+    console.error("Error fetching public stats:", error);
+    res.status(500).json({ error: "Failed to fetch stats" });
+  }
+};
+
 // Admin Endpoints
 
 // POST /api/admin/pages

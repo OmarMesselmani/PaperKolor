@@ -60,7 +60,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
           {category.title}
         </h3>
         <p className="text-sm font-medium text-purple-600 dark:text-purple-400 text-center mb-3">
-          {getDefaultPageCount(category.title)} pages
+          Explore
         </p>
 
         {/* Stats row */}

@@ -68,6 +68,53 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
     }
   };
 
+  const [uploading, setUploading] = useState(false);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
+        setUploading(true);
+        setError("");
+        setSuccess("");
+        
+        const base64Data = reader.result as string;
+        const res = await fetch(`${API_URL}/admin/upload`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            fileName: file.name,
+            fileType: "image",
+            base64Data
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Upload failed");
+        }
+
+        setImageUrl(data.url);
+        setSuccess(`File "${file.name}" uploaded successfully!`);
+      } catch (err: any) {
+        console.error(err);
+        setError(err.message || "Failed to upload file.");
+      } finally {
+        setUploading(false);
+      }
+    };
+    reader.onerror = () => {
+      setError("Failed to read file.");
+    };
+    reader.readAsDataURL(file);
+  };
+
   const resetForm = () => {
     setTitle("");
     setSlug("");
@@ -282,14 +329,64 @@ export default function AdminCategories({ token }: AdminCategoriesProps) {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Image URL Cover (Optional)</label>
-              <input
-                type="text"
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="/images/covers/category-name.jpg"
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all"
-              />
+              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Image Cover (Optional)</label>
+              <div className="flex gap-4 items-start">
+                <div className="flex-1">
+                  {!imageUrl ? (
+                    <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${uploading ? "border-purple-500/50 bg-purple-50/10 dark:bg-purple-950/10" : "border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-950/40 hover:bg-gray-100/50 dark:hover:bg-gray-950/60 hover:border-purple-500/40"}`}>
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-8 h-8 mb-2 ${uploading ? "text-purple-500 animate-bounce" : "text-gray-400 dark:text-gray-500"}`}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                        </svg>
+                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                          {uploading ? "Uploading cover image..." : "Click to select or upload cover image"}
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileUpload}
+                        disabled={uploading}
+                        className="hidden"
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-2xl p-4">
+                      <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 flex-shrink-0">
+                        <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Uploaded</span>
+                          <span className="text-xs font-bold text-gray-400 dark:text-gray-500 truncate block">{imageUrl.split('/').pop()}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <label className="cursor-pointer text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase hover:underline flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                            </svg>
+                            Change File
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleFileUpload}
+                              disabled={uploading}
+                              className="hidden"
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setImageUrl("")}
+                            className="text-[10px] text-red-500 font-black uppercase hover:underline"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="md:col-span-2">

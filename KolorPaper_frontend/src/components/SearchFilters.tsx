@@ -60,7 +60,7 @@ export default function SearchFilters({ className }: { className?: string }) {
       <div>
         <h4 className="font-semibold text-gray-800 dark:text-gray-200 mb-4">Age Group</h4>
         <div className="flex flex-col gap-3">
-          {['toddler', 'preschool', 'kids', 'adults'].map(age => (
+          {['kids', 'adults'].map(age => (
             <label key={age} className="flex items-center gap-3 cursor-pointer group">
               <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${currentAgeGroup === age ? 'bg-purple-600 border-purple-600' : 'border-gray-300 dark:border-gray-700 group-hover:border-purple-600 dark:group-hover:border-purple-400'}`}>
                 {currentAgeGroup === age && (
@@ -75,7 +75,9 @@ export default function SearchFilters({ className }: { className?: string }) {
                 checked={currentAgeGroup === age}
                 onChange={() => handleFilterChange('ageGroup', currentAgeGroup === age ? '' : age)}
               />
-              <span className="text-gray-600 dark:text-gray-400 capitalize group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors font-medium">{age}</span>
+              <span className="text-gray-600 dark:text-gray-400 capitalize group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors font-medium">
+                {age === 'adults' ? 'adult' : age}
+              </span>
             </label>
           ))}
         </div>

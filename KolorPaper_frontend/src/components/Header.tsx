@@ -24,7 +24,7 @@ export default function Header({ categories }: { categories: Category[] }) {
 
           <div className="flex items-center gap-4 sm:gap-6 order-2 sm:order-none">
             <DarkModeToggle />
-            <LanguageSwitcher />
+            {/* <LanguageSwitcher /> */}
           </div>
         </div>
       </div>

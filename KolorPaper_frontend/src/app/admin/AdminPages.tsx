@@ -443,101 +443,194 @@ export default function AdminPages({ token }: AdminPagesProps) {
                 onChange={(e) => setAgeGroup(e.target.value)}
                 className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all appearance-none"
               >
-                <option value="toddler">Toddler</option>
-                <option value="preschool">Preschool</option>
                 <option value="kids">Kids</option>
-                <option value="adults">Adults</option>
+                <option value="adults">Adult</option>
               </select>
             </div>
 
-            <div className="md:col-span-2">
+             <div className="md:col-span-2">
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Image (Main JPG/PNG)</label>
               <div className="flex gap-4 items-start">
-                <div className="flex-1 space-y-2">
-                  <input
-                    type="text"
-                    required
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    placeholder="/images/coloring-pages/parrot.png"
-                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all"
-                  />
-                  <div className="flex items-center gap-3">
-                    <label className="cursor-pointer px-4 py-2 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/20 text-purple-400 font-extrabold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5">
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                      </svg>
-                      <span>{uploadingField === "image" ? "Uploading..." : "Upload Image File"}</span>
+                <div className="flex-1">
+                  {!imageUrl ? (
+                    <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${uploadingField === "image" ? "border-purple-500/50 bg-purple-50/10 dark:bg-purple-950/10" : "border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-950/40 hover:bg-gray-100/50 dark:hover:bg-gray-950/60 hover:border-purple-500/40"}`}>
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-8 h-8 mb-2 ${uploadingField === "image" ? "text-purple-500 animate-bounce" : "text-gray-400 dark:text-gray-500"}`}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                        </svg>
+                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                          {uploadingField === "image" ? "Uploading main image..." : "Click to select or upload image"}
+                        </p>
+                      </div>
                       <input
                         type="file"
                         accept="image/*"
                         onChange={(e) => handleFileUpload(e, "image")}
                         disabled={uploadingField !== null}
                         className="hidden"
+                        required={!imageUrl}
                       />
                     </label>
-                    {imageUrl && <span className="text-[10px] text-green-500 font-bold">✓ Selected</span>}
-                  </div>
+                  ) : (
+                    <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-2xl p-4">
+                      <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 flex-shrink-0">
+                        <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Uploaded</span>
+                          <span className="text-xs font-bold text-gray-400 dark:text-gray-500 truncate block">{imageUrl.split('/').pop()}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <label className="cursor-pointer text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase hover:underline flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                            </svg>
+                            Change File
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleFileUpload(e, "image")}
+                              disabled={uploadingField !== null}
+                              className="hidden"
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setImageUrl("")}
+                            className="text-[10px] text-red-500 font-black uppercase hover:underline"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                {imageUrl && (
-                  <div className="relative w-24 h-24 rounded-xl overflow-hidden border border-gray-100 dark:border-white/10 flex-shrink-0 bg-gray-50 dark:bg-gray-950/40">
-                    <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
-                  </div>
-                )}
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Thumbnail Image (Optional)</label>
-              <input
-                type="text"
-                value={thumbnailUrl}
-                onChange={(e) => setThumbnailUrl(e.target.value)}
-                placeholder="/images/coloring-pages/thumbs/parrot.png"
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all mb-2"
-              />
-              <div className="flex items-center gap-3">
-                <label className="cursor-pointer px-4 py-2 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/20 text-purple-400 font-extrabold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                  </svg>
-                  <span>{uploadingField === "thumbnail" ? "Uploading..." : "Upload Thumbnail File"}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleFileUpload(e, "thumbnail")}
-                    disabled={uploadingField !== null}
-                    className="hidden"
-                  />
-                </label>
-                {thumbnailUrl && <span className="text-[10px] text-green-500 font-bold">✓ Selected</span>}
+              <div className="flex gap-4 items-start">
+                <div className="flex-1">
+                  {!thumbnailUrl ? (
+                    <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${uploadingField === "thumbnail" ? "border-purple-500/50 bg-purple-50/10 dark:bg-purple-950/10" : "border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-950/40 hover:bg-gray-100/50 dark:hover:bg-gray-950/60 hover:border-purple-500/40"}`}>
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-8 h-8 mb-2 ${uploadingField === "thumbnail" ? "text-purple-500 animate-bounce" : "text-gray-400 dark:text-gray-500"}`}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                        </svg>
+                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                          {uploadingField === "thumbnail" ? "Uploading thumbnail..." : "Click to select or upload thumbnail"}
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleFileUpload(e, "thumbnail")}
+                        disabled={uploadingField !== null}
+                        className="hidden"
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-2xl p-4">
+                      <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 flex-shrink-0">
+                        <img src={thumbnailUrl} alt="Preview" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Uploaded</span>
+                          <span className="text-xs font-bold text-gray-400 dark:text-gray-500 truncate block">{thumbnailUrl.split('/').pop()}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <label className="cursor-pointer text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase hover:underline flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                            </svg>
+                            Change File
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleFileUpload(e, "thumbnail")}
+                              disabled={uploadingField !== null}
+                              className="hidden"
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setThumbnailUrl("")}
+                            className="text-[10px] text-red-500 font-black uppercase hover:underline"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">PDF Document (Optional)</label>
-              <input
-                type="text"
-                value={pdfUrl}
-                onChange={(e) => setPdfUrl(e.target.value)}
-                placeholder="/pdf/coloring-pages/parrot.pdf"
-                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-800 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 text-sm transition-all mb-2"
-              />
-              <div className="flex items-center gap-3">
-                <label className="cursor-pointer px-4 py-2 bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/20 text-purple-400 font-extrabold text-xs rounded-xl shadow-sm transition-all flex items-center gap-1.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                  </svg>
-                  <span>{uploadingField === "pdf" ? "Uploading..." : "Upload PDF File"}</span>
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={(e) => handleFileUpload(e, "pdf")}
-                    disabled={uploadingField !== null}
-                    className="hidden"
-                  />
-                </label>
-                {pdfUrl && <span className="text-[10px] text-green-500 font-bold">✓ Selected</span>}
+              <div className="flex gap-4 items-start">
+                <div className="flex-1">
+                  {!pdfUrl ? (
+                    <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-2xl cursor-pointer transition-all ${uploadingField === "pdf" ? "border-purple-500/50 bg-purple-50/10 dark:bg-purple-950/10" : "border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-gray-950/40 hover:bg-gray-100/50 dark:hover:bg-gray-950/60 hover:border-purple-500/40"}`}>
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={`w-8 h-8 mb-2 ${uploadingField === "pdf" ? "text-purple-500 animate-bounce" : "text-gray-400 dark:text-gray-500"}`}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                        </svg>
+                        <p className="text-xs font-bold text-gray-500 dark:text-gray-400">
+                          {uploadingField === "pdf" ? "Uploading PDF..." : "Click to select or upload PDF"}
+                        </p>
+                      </div>
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={(e) => handleFileUpload(e, "pdf")}
+                        disabled={uploadingField !== null}
+                        className="hidden"
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center gap-4 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-2xl p-4">
+                      <div className="w-16 h-16 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 flex items-center justify-center text-red-500 flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-8 h-8">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m.75 12l3 3m0 0l3-3m-3 3v-6m-1.5-9H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] bg-green-50 dark:bg-green-950/20 text-green-600 dark:text-green-400 font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Uploaded</span>
+                          <span className="text-xs font-bold text-gray-400 dark:text-gray-500 truncate block">{pdfUrl.split('/').pop()}</span>
+                        </div>
+                        <div className="flex gap-2">
+                          <label className="cursor-pointer text-[10px] text-purple-600 dark:text-purple-400 font-black uppercase hover:underline flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
+                            </svg>
+                            Change File
+                            <input
+                              type="file"
+                              accept="application/pdf"
+                              onChange={(e) => handleFileUpload(e, "pdf")}
+                              disabled={uploadingField !== null}
+                              className="hidden"
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setPdfUrl("")}
+                            className="text-[10px] text-red-500 font-black uppercase hover:underline"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -627,10 +720,8 @@ export default function AdminPages({ token }: AdminPagesProps) {
               className="px-3 py-2.5 bg-gray-50 dark:bg-gray-950/40 border border-gray-100 dark:border-white/5 rounded-xl text-gray-600 dark:text-gray-300 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all appearance-none"
             >
               <option value="">Age</option>
-              <option value="toddler">Toddler</option>
-              <option value="preschool">Preschool</option>
               <option value="kids">Kids</option>
-              <option value="adults">Adults</option>
+              <option value="adults">Adult</option>
             </select>
           </div>
 
@@ -667,7 +758,7 @@ export default function AdminPages({ token }: AdminPagesProps) {
                       </td>
                       <td className="py-4 font-extrabold text-[#0F0728] dark:text-white">
                         <div>{page.title}</div>
-                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold block uppercase">Difficulty: {page.difficulty} | Age: {page.ageGroup}</span>
+                        <span className="text-[10px] text-gray-400 dark:text-gray-500 font-semibold block uppercase">Difficulty: {page.difficulty} | Age: {page.ageGroup === 'adults' ? 'adult' : page.ageGroup}</span>
                       </td>
                       <td className="py-4 text-xs font-bold uppercase text-purple-600 dark:text-purple-400">
                         {page.categorySlug}

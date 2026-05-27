@@ -12,7 +12,7 @@ export interface ColoringPage {
   likes?: number;
   pdfUrl?: string;
   difficulty?: 'easy' | 'medium' | 'hard';
-  ageGroup?: 'toddler' | 'preschool' | 'kids' | 'adults';
+  ageGroup?: 'kids' | 'adults';
 }
 
 export interface Category {

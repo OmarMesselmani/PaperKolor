@@ -98,7 +98,9 @@ export default async function DynamicPage({
                       </div>
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Age Group</span>
-                        <span className="font-bold text-gray-800 dark:text-gray-200 capitalize">{coloringPage.ageGroup}</span>
+                        <span className="font-bold text-gray-800 dark:text-gray-200 capitalize">
+                          {coloringPage.ageGroup === 'adults' ? 'adult' : coloringPage.ageGroup}
+                        </span>
                       </div>
                     </div>
                   )}
