@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../db.js";
+import { stripHtml, sanitizeSlug } from "../utils/sanitize.js";
 
 // GET /api/pages
 export const getColoringPages = async (req: Request, res: Response): Promise<void> => {
@@ -290,38 +291,53 @@ export const createColoringPage = async (req: Request, res: Response): Promise<a
       });
     }
 
+    const cleanTitle = stripHtml(title).substring(0, 100);
+    const cleanSlug = sanitizeSlug(slug).substring(0, 100);
+    const cleanImageUrl = stripHtml(imageUrl).substring(0, 2048);
+    const cleanThumbnailUrl = stripHtml(thumbnailUrl).substring(0, 2048);
+    const cleanPdfUrl = pdfUrl ? stripHtml(pdfUrl).substring(0, 2048) : null;
+    const cleanCategorySlug = sanitizeSlug(categorySlug).substring(0, 100);
+    const cleanSubCategorySlug = subCategorySlug ? sanitizeSlug(subCategorySlug).substring(0, 100) : null;
+    const cleanDescription = description ? stripHtml(description).substring(0, 1000) : null;
+    const cleanDifficulty = difficulty ? stripHtml(difficulty).substring(0, 50) : null;
+    const cleanAgeGroup = ageGroup ? stripHtml(ageGroup).substring(0, 50) : null;
+
+    if (!cleanTitle || !cleanSlug || !cleanImageUrl || !cleanThumbnailUrl || !cleanCategorySlug) {
+      return res.status(400).json({ error: "Invalid inputs after sanitization" });
+    }
+
     // Verify slug uniqueness
-    const existing = await prisma.coloringPage.findUnique({ where: { slug } });
+    const existing = await prisma.coloringPage.findUnique({ where: { slug: cleanSlug } });
     if (existing) {
       return res.status(400).json({ error: "Page slug must be unique" });
     }
 
     // Verify category exists
-    const category = await prisma.category.findUnique({ where: { slug: categorySlug } });
+    const category = await prisma.category.findUnique({ where: { slug: cleanCategorySlug } });
     if (!category) {
-      return res.status(400).json({ error: `Category '${categorySlug}' does not exist` });
+      return res.status(400).json({ error: `Category '${cleanCategorySlug}' does not exist` });
     }
 
     // Verify subcategory exists if provided
-    if (subCategorySlug) {
-      const subCategory = await prisma.category.findUnique({ where: { slug: subCategorySlug } });
+    if (cleanSubCategorySlug) {
+      const subCategory = await prisma.category.findUnique({ where: { slug: cleanSubCategorySlug } });
       if (!subCategory) {
-        return res.status(400).json({ error: `Subcategory '${subCategorySlug}' does not exist` });
+        return res.status(400).json({ error: `Subcategory '${cleanSubCategorySlug}' does not exist` });
       }
     }
 
     const page = await prisma.coloringPage.create({
       data: {
-        title,
-        slug,
-        imageUrl,
-        thumbnailUrl,
-        pdfUrl: pdfUrl || null,
-        categorySlug,
-        subCategorySlug: subCategorySlug || null,
-        description,
-        difficulty,
-        ageGroup,
+        title: cleanTitle,
+        slug: cleanSlug,
+        imageUrl: cleanImageUrl,
+        thumbnailUrl: cleanThumbnailUrl,
+        pdfUrl: cleanPdfUrl || null,
+        categorySlug: cleanCategorySlug,
+        subCategorySlug: cleanSubCategorySlug || null,
+        description: cleanDescription,
+        difficulty: cleanDifficulty,
+        ageGroup: cleanAgeGroup,
         published: published !== undefined ? published : true
       }
     });
@@ -347,43 +363,58 @@ export const updateColoringPage = async (req: Request, res: Response): Promise<a
       return res.status(404).json({ error: "Coloring page not found" });
     }
 
+    const cleanTitle = title !== undefined ? stripHtml(title).substring(0, 100) : existing.title;
+    const cleanSlug = slug !== undefined ? sanitizeSlug(slug).substring(0, 100) : existing.slug;
+    const cleanImageUrl = imageUrl !== undefined ? stripHtml(imageUrl).substring(0, 2048) : existing.imageUrl;
+    const cleanThumbnailUrl = thumbnailUrl !== undefined ? stripHtml(thumbnailUrl).substring(0, 2048) : existing.thumbnailUrl;
+    const cleanPdfUrl = pdfUrl !== undefined ? (pdfUrl ? stripHtml(pdfUrl).substring(0, 2048) : null) : existing.pdfUrl;
+    const cleanCategorySlug = categorySlug !== undefined ? sanitizeSlug(categorySlug).substring(0, 100) : existing.categorySlug;
+    const cleanSubCategorySlug = subCategorySlug !== undefined ? (subCategorySlug ? sanitizeSlug(subCategorySlug).substring(0, 100) : null) : existing.subCategorySlug;
+    const cleanDescription = description !== undefined ? (description ? stripHtml(description).substring(0, 1000) : null) : existing.description;
+    const cleanDifficulty = difficulty !== undefined ? (difficulty ? stripHtml(difficulty).substring(0, 50) : null) : existing.difficulty;
+    const cleanAgeGroup = ageGroup !== undefined ? (ageGroup ? stripHtml(ageGroup).substring(0, 50) : null) : existing.ageGroup;
+
+    if (slug !== undefined && !cleanSlug) {
+      return res.status(400).json({ error: "Invalid slug format" });
+    }
+
     // Validate unique slug
-    if (slug && slug !== existing.slug) {
-      const slugExists = await prisma.coloringPage.findUnique({ where: { slug } });
+    if (slug && cleanSlug !== existing.slug) {
+      const slugExists = await prisma.coloringPage.findUnique({ where: { slug: cleanSlug } });
       if (slugExists) {
         return res.status(400).json({ error: "Page slug must be unique" });
       }
     }
 
     // Validate category exists if changed
-    if (categorySlug && categorySlug !== existing.categorySlug) {
-      const category = await prisma.category.findUnique({ where: { slug: categorySlug } });
+    if (categorySlug && cleanCategorySlug !== existing.categorySlug) {
+      const category = await prisma.category.findUnique({ where: { slug: cleanCategorySlug } });
       if (!category) {
-        return res.status(400).json({ error: `Category '${categorySlug}' does not exist` });
+        return res.status(400).json({ error: `Category '${cleanCategorySlug}' does not exist` });
       }
     }
 
     // Validate subcategory exists if changed
-    if (subCategorySlug && subCategorySlug !== existing.subCategorySlug) {
-      const subCategory = await prisma.category.findUnique({ where: { slug: subCategorySlug } });
+    if (subCategorySlug && cleanSubCategorySlug !== existing.subCategorySlug) {
+      const subCategory = await prisma.category.findUnique({ where: { slug: cleanSubCategorySlug } });
       if (!subCategory) {
-        return res.status(400).json({ error: `Subcategory '${subCategorySlug}' does not exist` });
+        return res.status(400).json({ error: `Subcategory '${cleanSubCategorySlug}' does not exist` });
       }
     }
 
     const updatedPage = await prisma.coloringPage.update({
       where: { id },
       data: {
-        title: title !== undefined ? title : existing.title,
-        slug: slug !== undefined ? slug : existing.slug,
-        imageUrl: imageUrl !== undefined ? imageUrl : existing.imageUrl,
-        thumbnailUrl: thumbnailUrl !== undefined ? thumbnailUrl : existing.thumbnailUrl,
-        pdfUrl: pdfUrl !== undefined ? (pdfUrl || null) : existing.pdfUrl,
-        categorySlug: categorySlug !== undefined ? categorySlug : existing.categorySlug,
-        subCategorySlug: subCategorySlug !== undefined ? (subCategorySlug || null) : existing.subCategorySlug,
-        description: description !== undefined ? description : existing.description,
-        difficulty: difficulty !== undefined ? difficulty : existing.difficulty,
-        ageGroup: ageGroup !== undefined ? ageGroup : existing.ageGroup,
+        title: cleanTitle,
+        slug: cleanSlug,
+        imageUrl: cleanImageUrl,
+        thumbnailUrl: cleanThumbnailUrl,
+        pdfUrl: cleanPdfUrl,
+        categorySlug: cleanCategorySlug,
+        subCategorySlug: cleanSubCategorySlug,
+        description: cleanDescription,
+        difficulty: cleanDifficulty,
+        ageGroup: cleanAgeGroup,
         published: published !== undefined ? published : existing.published
       }
     });

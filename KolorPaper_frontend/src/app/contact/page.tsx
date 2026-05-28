@@ -9,13 +9,15 @@ export default function ContactPage() {
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
   const [botError, setBotError] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const honeypotRef = useRef<HTMLInputElement>(null);
   const loadTime = useRef(Date.now());
   const [cooldown, setCooldown] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBotError(false);
+    setSubmitError("");
 
     if (honeypotRef.current?.value) {
       setBotError(true);
@@ -27,16 +29,40 @@ export default function ContactPage() {
       return;
     }
 
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
     if (name.trim() && email.trim() && message.trim()) {
-      setSent(true);
       setCooldown(true);
-      setName("");
-      setEmail("");
-      setMessage("");
-      setTimeout(() => {
-        setSent(false);
+      try {
+        const res = await fetch(`${API_URL}/contact`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ name, email, message })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || "Failed to send message.");
+        }
+
+        setSent(true);
+        setName("");
+        setEmail("");
+        setMessage("");
+        
+        // Cooldown reset after 30 seconds
+        setTimeout(() => {
+          setSent(false);
+          setCooldown(false);
+        }, 30000);
+      } catch (err: any) {
+        console.error(err);
+        setSubmitError(err.message || "Failed to send message. Please try again later.");
         setCooldown(false);
-      }, 30000);
+      }
     }
   };
 
@@ -73,8 +99,13 @@ export default function ContactPage() {
                   autoComplete="off"
                 />
                 {botError && (
-                  <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-red-700 dark:text-red-400 text-sm font-semibold">
+                  <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-red-700 dark:text-red-400 text-sm font-semibold rounded-xl">
                     Submission blocked. Please try again in a moment.
+                  </div>
+                )}
+                {submitError && (
+                  <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/30 text-red-700 dark:text-red-400 text-sm font-semibold rounded-xl">
+                    {submitError}
                   </div>
                 )}
                 <div>

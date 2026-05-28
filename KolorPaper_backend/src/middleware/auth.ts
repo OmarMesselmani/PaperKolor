@@ -22,10 +22,14 @@ export const authenticateAdmin = (
 
   const token = authHeader.split(" ")[1];
   
+  
   try {
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ error: "Internal server error: Security configuration missing." });
+    }
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET || "kolorpaper-admin-secret-change-in-production"
+      process.env.JWT_SECRET
     ) as { id: string; email: string; name: string };
     
     req.admin = decoded;
@@ -34,3 +38,4 @@ export const authenticateAdmin = (
     return res.status(403).json({ error: "Invalid or expired token." });
   }
 };
+

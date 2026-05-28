@@ -46,7 +46,11 @@ export default function AdminPosts({ token }: AdminPostsProps) {
   const fetchPosts = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}/posts?admin=true`);
+      const res = await fetch(`${API_URL}/admin/posts`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
       if (!res.ok) throw new Error("Failed to load blog posts.");
       const data = await res.json();
       setPosts(data);

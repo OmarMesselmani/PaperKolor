@@ -84,35 +84,82 @@ export default async function DynamicPage({
               <PageStats slug={coloringPage.slug} views={coloringPage.views} downloads={coloringPage.downloads} likes={coloringPage.likes} className="mt-6" />
 
               {(coloringPage.difficulty || coloringPage.ageGroup) && (
-                <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 flex gap-8 print:hidden">
+                <div className="mt-8 pt-6 border-t border-black/5 dark:border-white/5 flex flex-col gap-6 print:hidden">
                   {coloringPage.difficulty && (
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-950/30 flex items-center justify-center text-purple-600 dark:text-purple-400">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                        </svg>
-                      </div>
                       <div className="flex flex-col">
-                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Difficulty</span>
-                        <span className="font-bold text-gray-800 dark:text-gray-200 capitalize">{coloringPage.difficulty}</span>
+                        <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                          Difficulty: <span className="text-gray-800 dark:text-gray-200 capitalize font-black">{coloringPage.difficulty}</span>
+                        </span>
+                        
+                        {/* Custom Difficulty Slider */}
+                        <div className="relative w-36 h-7 flex items-center">
+                          {/* Track */}
+                          <div className="w-full h-3.5 rounded-full bg-gradient-to-r from-[#ff3b30] via-[#ff9500] via-[#ffcc00] to-[#34c759] border-2 border-white dark:border-gray-800 shadow-[inset_0_2px_4px_rgba(0,0,0,0.15)]" />
+                          
+                          {/* Thumb */}
+                          <div 
+                            className="absolute w-6 h-6 rounded-full bg-white flex items-center justify-center shadow-[0_2px_6px_rgba(0,0,0,0.25)] border border-gray-200/50 transition-all duration-700 ease-out"
+                            style={{ 
+                              left: coloringPage.difficulty === 'easy' ? '85%' : coloringPage.difficulty === 'hard' ? '15%' : '50%',
+                              transform: 'translateX(-50%)'
+                            }}
+                          >
+                            <div 
+                              className={`w-4 h-4 rounded-full transition-colors duration-500 ${
+                                coloringPage.difficulty === 'easy' ? 'bg-[#34c759]' : coloringPage.difficulty === 'hard' ? 'bg-[#ff3b30]' : 'bg-[#ff9500]'
+                              }`}
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   )}
                   
                   {coloringPage.ageGroup && (
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-orange-50 dark:bg-orange-950/30 flex items-center justify-center text-orange-500 dark:text-orange-400">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="9" cy="7" r="4"></circle>
-                          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-sm border ${
+                        coloringPage.ageGroup === 'adults' 
+                          ? 'bg-purple-500/10 border-purple-500/20 text-purple-600 dark:text-purple-400' 
+                          : 'bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400'
+                      }`}>
+                        {coloringPage.ageGroup === 'adults' ? (
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            {/* Face circle */}
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.1" />
+                            {/* Cool hair / haircut outline */}
+                            <path d="M6 10c0-4 3-7 6-7s6 3 6 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                            {/* Eyes */}
+                            <circle cx="9.5" cy="11.5" r="1" fill="currentColor" />
+                            <circle cx="14.5" cy="11.5" r="1" fill="currentColor" />
+                            {/* Smart glasses frames */}
+                            <circle cx="9.5" cy="11.5" r="2.2" stroke="currentColor" strokeWidth="1.5" />
+                            <circle cx="14.5" cy="11.5" r="2.2" stroke="currentColor" strokeWidth="1.5" />
+                            <path d="M11.7 11.5h.6" stroke="currentColor" strokeWidth="1.5" />
+                            {/* Smile */}
+                            <path d="M10 16h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                          </svg>
+                        ) : (
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            {/* Face circle */}
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.1" />
+                            {/* Hair curl on top */}
+                            <path d="M12 3c-1-1-1.5-1.5-1.5-2a1.5 1.5 0 0 1 3 0c0 .5-.5 1-1.5 2" stroke="currentColor" strokeWidth="2" />
+                            {/* Eyes */}
+                            <circle cx="9" cy="11.5" r="1.2" fill="currentColor" />
+                            <circle cx="15" cy="11.5" r="1.2" fill="currentColor" />
+                            {/* Smile */}
+                            <path d="M9.5 15c.8 1.2 2.2 1.2 3 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                            {/* Rosy cheeks */}
+                            <circle cx="6.5" cy="13.5" r="1" fill="#f43f5e" fillOpacity="0.6" />
+                            <circle cx="17.5" cy="13.5" r="1" fill="#f43f5e" fillOpacity="0.6" />
+                          </svg>
+                        )}
                       </div>
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Age Group</span>
                         <span className="font-bold text-gray-800 dark:text-gray-200 capitalize">
-                          {coloringPage.ageGroup === 'adults' ? 'adult' : coloringPage.ageGroup}
+                          {coloringPage.ageGroup === 'adults' ? 'adults' : coloringPage.ageGroup}
                         </span>
                       </div>
                     </div>

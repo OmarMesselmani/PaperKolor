@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../db.js";
+import { stripHtml } from "../utils/sanitize.js";
 
 // POST /api/contact
 export const submitMessage = async (req: Request, res: Response): Promise<any> => {
@@ -10,16 +11,27 @@ export const submitMessage = async (req: Request, res: Response): Promise<any> =
       return res.status(400).json({ error: "Name, email, and message are required" });
     }
 
+    const cleanName = stripHtml(name);
+    const cleanMessage = stripHtml(message);
+
+    if (cleanName.length > 100) {
+      return res.status(400).json({ error: "Name must be 100 characters or less" });
+    }
+
+    if (cleanMessage.length > 2000) {
+      return res.status(400).json({ error: "Message must be 2000 characters or less" });
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(email) || email.length > 254) {
       return res.status(400).json({ error: "Please provide a valid email address" });
     }
 
     const newMessage = await prisma.contactMessage.create({
       data: {
-        name,
+        name: cleanName,
         email,
-        message,
+        message: cleanMessage,
         read: false
       }
     });

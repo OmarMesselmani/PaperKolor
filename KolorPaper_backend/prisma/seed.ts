@@ -341,7 +341,9 @@ async function main() {
 
   console.log("Seeding admin user...");
   const adminEmail = "admin@kolorpaper.com";
-  const passwordHash = await bcrypt.hash("admin123", 10);
+  // WARNING: This seed file is strictly for development and testing environments.
+  // DO NOT use this password in production. Change it immediately after setup.
+  const passwordHash = await bcrypt.hash("KP-SecureAdmin-2026!#", 10);
   await prisma.adminUser.create({
     data: {
       email: adminEmail,

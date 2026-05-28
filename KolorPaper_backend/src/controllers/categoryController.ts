@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../db.js";
+import { stripHtml, sanitizeSlug } from "../utils/sanitize.js";
 
 // GET /api/categories
 export const getCategories = async (req: Request, res: Response): Promise<void> => {
@@ -63,19 +64,29 @@ export const createCategory = async (req: Request, res: Response): Promise<any> 
       return res.status(400).json({ error: "Title and slug are required" });
     }
 
+    const cleanTitle = stripHtml(title).substring(0, 100);
+    const cleanSlug = sanitizeSlug(slug).substring(0, 100);
+    const cleanDescription = description ? stripHtml(description).substring(0, 500) : null;
+    const cleanImageUrl = imageUrl ? stripHtml(imageUrl).substring(0, 2048) : null;
+    const cleanParentSlug = parentSlug ? sanitizeSlug(parentSlug).substring(0, 100) : null;
+
+    if (!cleanTitle || !cleanSlug) {
+      return res.status(400).json({ error: "Invalid title or slug after sanitization" });
+    }
+
     // Verify unique slug
-    const existing = await prisma.category.findUnique({ where: { slug } });
+    const existing = await prisma.category.findUnique({ where: { slug: cleanSlug } });
     if (existing) {
       return res.status(400).json({ error: "Category slug must be unique" });
     }
 
     const category = await prisma.category.create({
       data: {
-        title,
-        slug,
-        description,
-        imageUrl,
-        parentSlug: parentSlug || null,
+        title: cleanTitle,
+        slug: cleanSlug,
+        description: cleanDescription,
+        imageUrl: cleanImageUrl,
+        parentSlug: cleanParentSlug || null,
         sortOrder: sortOrder ? parseInt(sortOrder) : 0
       }
     });
@@ -98,9 +109,19 @@ export const updateCategory = async (req: Request, res: Response): Promise<any> 
       return res.status(404).json({ error: "Category not found" });
     }
 
+    const cleanTitle = title !== undefined ? stripHtml(title).substring(0, 100) : existing.title;
+    const cleanSlug = slug !== undefined ? sanitizeSlug(slug).substring(0, 100) : existing.slug;
+    const cleanDescription = description !== undefined ? (description ? stripHtml(description).substring(0, 500) : null) : existing.description;
+    const cleanImageUrl = imageUrl !== undefined ? (imageUrl ? stripHtml(imageUrl).substring(0, 2048) : null) : existing.imageUrl;
+    const cleanParentSlug = parentSlug !== undefined ? (parentSlug ? sanitizeSlug(parentSlug).substring(0, 100) : null) : existing.parentSlug;
+
+    if (slug !== undefined && !cleanSlug) {
+      return res.status(400).json({ error: "Invalid slug format" });
+    }
+
     // If slug is changed, verify uniqueness
-    if (slug && slug !== existing.slug) {
-      const slugExists = await prisma.category.findUnique({ where: { slug } });
+    if (slug && cleanSlug !== existing.slug) {
+      const slugExists = await prisma.category.findUnique({ where: { slug: cleanSlug } });
       if (slugExists) {
         return res.status(400).json({ error: "Category slug must be unique" });
       }
@@ -109,11 +130,11 @@ export const updateCategory = async (req: Request, res: Response): Promise<any> 
     const updatedCategory = await prisma.category.update({
       where: { id },
       data: {
-        title: title !== undefined ? title : existing.title,
-        slug: slug !== undefined ? slug : existing.slug,
-        description: description !== undefined ? description : existing.description,
-        imageUrl: imageUrl !== undefined ? imageUrl : existing.imageUrl,
-        parentSlug: parentSlug !== undefined ? (parentSlug || null) : existing.parentSlug,
+        title: cleanTitle,
+        slug: cleanSlug,
+        description: cleanDescription,
+        imageUrl: cleanImageUrl,
+        parentSlug: cleanParentSlug,
         sortOrder: sortOrder !== undefined ? parseInt(sortOrder) : existing.sortOrder
       }
     });

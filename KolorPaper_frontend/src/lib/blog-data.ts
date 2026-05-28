@@ -1,5 +1,6 @@
 import { remark } from 'remark';
 import html from 'remark-html';
+import DOMPurify from 'isomorphic-dompurify';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
@@ -52,7 +53,10 @@ export async function getPostData(slug: string): Promise<BlogPost | null> {
     const processedContent = await remark()
       .use(html)
       .process(post.content);
-    const contentHtml = processedContent.toString();
+    const rawContentHtml = processedContent.toString();
+    
+    // Sanitize the parsed HTML to prevent stored XSS
+    const contentHtml = DOMPurify.sanitize(rawContentHtml);
 
     return {
       ...post,

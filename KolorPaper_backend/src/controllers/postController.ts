@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { prisma } from "../db.js";
+import { stripHtml, sanitizeSlug } from "../utils/sanitize.js";
 
 // Helper function to format a title to a URL-friendly slug
 const slugify = (text: string) => {
@@ -14,17 +15,28 @@ const slugify = (text: string) => {
 // GET /api/posts
 export const getPosts = async (req: Request, res: Response): Promise<void> => {
   try {
-    const admin = req.query.admin === "true";
-    const where = admin ? {} : { published: true };
-
     const posts = await prisma.blogPost.findMany({
-      where,
+      where: { published: true },
       orderBy: { date: "desc" }
     });
 
     res.json(posts);
   } catch (error) {
     console.error("Error fetching posts:", error);
+    res.status(500).json({ error: "Failed to fetch posts" });
+  }
+};
+
+// GET /api/admin/posts
+export const getAdminPosts = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const posts = await prisma.blogPost.findMany({
+      orderBy: { date: "desc" }
+    });
+
+    res.json(posts);
+  } catch (error) {
+    console.error("Error fetching admin posts:", error);
     res.status(500).json({ error: "Failed to fetch posts" });
   }
 };
@@ -57,10 +69,18 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
       return res.status(400).json({ error: "Title and content are required" });
     }
 
-    let slug = customSlug ? slugify(customSlug) : slugify(title);
+    const cleanTitle = stripHtml(title).substring(0, 150);
+    const cleanAuthor = author ? stripHtml(author).substring(0, 100) : "KolorPaper Team";
+    const cleanCategory = category ? stripHtml(category).substring(0, 100) : "General";
+    const cleanExcerpt = excerpt ? stripHtml(excerpt).substring(0, 500) : "";
+    const cleanCoverImage = coverImage ? stripHtml(coverImage).substring(0, 2048) : "";
+    const cleanDate = date ? stripHtml(date).substring(0, 20) : new Date().toISOString().split("T")[0];
+
+    let slug = customSlug ? sanitizeSlug(customSlug) : slugify(cleanTitle);
     if (!slug) {
       slug = `post-${Date.now()}`;
     }
+    slug = slug.substring(0, 150);
 
     // Verify unique slug
     const existing = await prisma.blogPost.findUnique({ where: { slug } });
@@ -68,18 +88,15 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
       return res.status(400).json({ error: "Post slug must be unique" });
     }
 
-    // Use current date if none provided (e.g. YYYY-MM-DD)
-    const postDate = date || new Date().toISOString().split("T")[0];
-
     const post = await prisma.blogPost.create({
       data: {
-        title,
+        title: cleanTitle,
         slug,
-        date: postDate,
-        author: author || "KolorPaper Team",
-        category: category || "General",
-        excerpt: excerpt || "",
-        coverImage: coverImage || "",
+        date: cleanDate,
+        author: cleanAuthor,
+        category: cleanCategory,
+        excerpt: cleanExcerpt,
+        coverImage: cleanCoverImage,
         content,
         published: published !== undefined ? !!published : true
       }
@@ -103,25 +120,33 @@ export const updatePost = async (req: Request, res: Response): Promise<any> => {
       return res.status(404).json({ error: "Post not found" });
     }
 
+    const cleanTitle = title !== undefined ? stripHtml(title).substring(0, 150) : existing.title;
+    const cleanAuthor = author !== undefined ? stripHtml(author).substring(0, 100) : existing.author;
+    const cleanCategory = category !== undefined ? stripHtml(category).substring(0, 100) : existing.category;
+    const cleanExcerpt = excerpt !== undefined ? stripHtml(excerpt).substring(0, 500) : existing.excerpt;
+    const cleanCoverImage = coverImage !== undefined ? stripHtml(coverImage).substring(0, 2048) : existing.coverImage;
+    const cleanDate = date !== undefined ? stripHtml(date).substring(0, 20) : existing.date;
+
     let slug = existing.slug;
     if (customSlug && customSlug !== existing.slug) {
-      slug = slugify(customSlug);
+      slug = sanitizeSlug(customSlug);
       const slugExists = await prisma.blogPost.findUnique({ where: { slug } });
       if (slugExists && slugExists.id !== id) {
         return res.status(400).json({ error: "Post slug must be unique" });
       }
     }
+    slug = slug.substring(0, 150);
 
     const updated = await prisma.blogPost.update({
       where: { id },
       data: {
-        title: title !== undefined ? title : existing.title,
+        title: cleanTitle,
         slug,
-        date: date !== undefined ? date : existing.date,
-        author: author !== undefined ? author : existing.author,
-        category: category !== undefined ? category : existing.category,
-        excerpt: excerpt !== undefined ? excerpt : existing.excerpt,
-        coverImage: coverImage !== undefined ? coverImage : existing.coverImage,
+        date: cleanDate,
+        author: cleanAuthor,
+        category: cleanCategory,
+        excerpt: cleanExcerpt,
+        coverImage: cleanCoverImage,
         content: content !== undefined ? content : existing.content,
         published: published !== undefined ? !!published : existing.published
       }
