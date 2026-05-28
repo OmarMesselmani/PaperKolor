@@ -4,10 +4,6 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "placehold.co",
-      },
-      {
         protocol: "http",
         hostname: "localhost",
         port: "5000",
@@ -23,6 +19,10 @@ const nextConfig: NextConfig = {
       {
         source: "/:path*",
         headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: http://localhost:5000 https://*.kolorpaper.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http://localhost:5000 https://*.kolorpaper.com; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';",
+          },
           {
             key: "X-Frame-Options",
             value: "DENY",

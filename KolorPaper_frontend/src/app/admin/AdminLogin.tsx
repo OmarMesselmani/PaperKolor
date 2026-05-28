@@ -74,7 +74,7 @@ export default function AdminLogin({ onLoginSuccess }: AdminLoginProps) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@kolorpaper.com"
+              placeholder="Enter your email"
               className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent text-sm transition-all duration-300"
             />
           </div>

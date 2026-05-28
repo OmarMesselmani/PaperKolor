@@ -99,22 +99,25 @@ export const getStats = async (req: Request, res: Response): Promise<void> => {
     });
 
     // 6. Basic analytics for recent activity (last 7 days page views/downloads)
+    // Uses database-level aggregation to handle millions of rows efficiently
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    const recentViews = await prisma.pageView.findMany({
-      where: {
-        createdAt: {
-          gte: sevenDaysAgo
-        }
-      },
-      select: {
-        action: true,
-        createdAt: true
-      }
-    });
+    const dbActivity = await prisma.$queryRaw<
+      { activity_date: string; action: string; count: bigint }[]
+    >`
+      SELECT
+        TO_CHAR("createdAt", 'YYYY-MM-DD') AS activity_date,
+        "action",
+        COUNT(*) AS count
+      FROM "PageView"
+      WHERE "createdAt" >= ${sevenDaysAgo}
+        AND "action" IN ('view', 'download')
+      GROUP BY activity_date, "action"
+      ORDER BY activity_date ASC
+    `;
 
-    // Group activities by date
+    // Initialize all 7 days with zeroes
     const dailyActivity: Record<string, { views: number; downloads: number }> = {};
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
@@ -123,16 +126,18 @@ export const getStats = async (req: Request, res: Response): Promise<void> => {
       dailyActivity[dateStr] = { views: 0, downloads: 0 };
     }
 
-    recentViews.forEach((v) => {
-      const dateStr = v.createdAt.toISOString().split("T")[0];
+    // Merge database results into the daily map
+    for (const row of dbActivity) {
+      const dateStr = row.activity_date;
       if (dailyActivity[dateStr]) {
-        if (v.action === "view") {
-          dailyActivity[dateStr].views++;
-        } else if (v.action === "download") {
-          dailyActivity[dateStr].downloads++;
+        const count = Number(row.count);
+        if (row.action === "view") {
+          dailyActivity[dateStr].views = count;
+        } else if (row.action === "download") {
+          dailyActivity[dateStr].downloads = count;
         }
       }
-    });
+    }
 
     const activityTimeline = Object.entries(dailyActivity).map(([date, stats]) => ({
       date,

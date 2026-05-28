@@ -2,6 +2,28 @@ import { Request, Response } from "express";
 import { prisma } from "../db.js";
 import { stripHtml, sanitizeSlug } from "../utils/sanitize.js";
 
+// Allowed sortBy columns and order directions to prevent ORM injection
+const ALLOWED_SORT_COLUMNS = ["createdAt", "views", "downloads", "likes", "title"];
+const ALLOWED_ORDER = ["asc", "desc"];
+
+// Anonymize IP by removing the last octet for GDPR compliance
+const anonymizeIp = (ip: string | undefined): string => {
+  if (!ip) return "unknown";
+  // Handle IPv6-mapped IPv4 like ::ffff:192.168.1.1
+  const cleanIp = ip.replace(/^::ffff:/, "");
+  if (cleanIp.includes(":")) {
+    // IPv6: remove last 2 groups
+    const parts = cleanIp.split(":");
+    return parts.slice(0, Math.max(parts.length - 2, 2)).join(":") + ":0:0";
+  }
+  // IPv4: remove last octet
+  const parts = cleanIp.split(".");
+  if (parts.length === 4) {
+    return parts.slice(0, 3).join(".") + ".0";
+  }
+  return "unknown";
+};
+
 // GET /api/pages
 export const getColoringPages = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -11,13 +33,15 @@ export const getColoringPages = async (req: Request, res: Response): Promise<voi
     const search = req.query.search as string | undefined;
     
     // Pagination params
-    const page = parseInt(req.query.page as string || "1");
-    const limit = parseInt(req.query.limit as string || "20");
+    const page = Math.max(1, parseInt(req.query.page as string || "1") || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit as string || "20") || 20));
     const skip = (page - 1) * limit;
 
-    // Sorting params
-    const sortBy = req.query.sortBy as string || "createdAt"; // createdAt, views, downloads, likes, title
-    const order = req.query.order as string || "desc"; // asc, desc
+    // Sorting params — whitelisted to prevent ORM injection
+    const rawSortBy = req.query.sortBy as string || "createdAt";
+    const rawOrder = req.query.order as string || "desc";
+    const sortBy = ALLOWED_SORT_COLUMNS.includes(rawSortBy) ? rawSortBy : "createdAt";
+    const order = ALLOWED_ORDER.includes(rawOrder.toLowerCase()) ? rawOrder.toLowerCase() : "desc";
 
     const where: any = { published: true };
 
@@ -120,7 +144,7 @@ export const getColoringPageBySlug = async (req: Request, res: Response): Promis
 export const recordView = async (req: Request, res: Response): Promise<any> => {
   try {
     const slug = req.params.slug as string;
-    const ip = req.ip;
+    const ip = anonymizeIp(req.ip);
     const userAgent = req.headers["user-agent"];
 
     const page = await prisma.coloringPage.findUnique({ where: { slug } });
@@ -155,7 +179,7 @@ export const recordView = async (req: Request, res: Response): Promise<any> => {
 export const recordDownload = async (req: Request, res: Response): Promise<any> => {
   try {
     const slug = req.params.slug as string;
-    const ip = req.ip;
+    const ip = anonymizeIp(req.ip);
     const userAgent = req.headers["user-agent"];
 
     const page = await prisma.coloringPage.findUnique({ where: { slug } });
@@ -191,7 +215,7 @@ export const recordLike = async (req: Request, res: Response): Promise<any> => {
   try {
     const slug = req.params.slug as string;
     const { action } = req.body; // "like" (increment) or "unlike" (decrement)
-    const ip = req.ip || "unknown";
+    const ip = anonymizeIp(req.ip);
     const userAgent = req.headers["user-agent"] || "unknown";
     
     const page = await prisma.coloringPage.findUnique({ where: { slug } });
@@ -395,7 +419,7 @@ export const updateColoringPage = async (req: Request, res: Response): Promise<a
     }
 
     // Validate subcategory exists if changed
-    if (subCategorySlug && cleanSubCategorySlug !== existing.subCategorySlug) {
+    if (cleanSubCategorySlug && cleanSubCategorySlug !== existing.subCategorySlug) {
       const subCategory = await prisma.category.findUnique({ where: { slug: cleanSubCategorySlug } });
       if (!subCategory) {
         return res.status(400).json({ error: `Subcategory '${cleanSubCategorySlug}' does not exist` });

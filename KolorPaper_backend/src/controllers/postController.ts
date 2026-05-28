@@ -69,6 +69,11 @@ export const createPost = async (req: Request, res: Response): Promise<any> => {
       return res.status(400).json({ error: "Title and content are required" });
     }
 
+    // Limit content size to prevent storage abuse (50KB max)
+    if (content.length > 50000) {
+      return res.status(400).json({ error: "Content is too long. Maximum 50,000 characters allowed." });
+    }
+
     const cleanTitle = stripHtml(title).substring(0, 150);
     const cleanAuthor = author ? stripHtml(author).substring(0, 100) : "KolorPaper Team";
     const cleanCategory = category ? stripHtml(category).substring(0, 100) : "General";
@@ -118,6 +123,11 @@ export const updatePost = async (req: Request, res: Response): Promise<any> => {
     const existing = await prisma.blogPost.findUnique({ where: { id } });
     if (!existing) {
       return res.status(404).json({ error: "Post not found" });
+    }
+
+    // Limit content size to prevent storage abuse (50KB max)
+    if (content !== undefined && content.length > 50000) {
+      return res.status(400).json({ error: "Content is too long. Maximum 50,000 characters allowed." });
     }
 
     const cleanTitle = title !== undefined ? stripHtml(title).substring(0, 150) : existing.title;

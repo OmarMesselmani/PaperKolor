@@ -20,8 +20,31 @@ export default function AdminPage() {
     const storedAdmin = localStorage.getItem("kolorpaper_admin_user");
     
     if (storedToken && storedAdmin) {
+      // Validate JWT token expiry before using it
+      try {
+        const payload = JSON.parse(atob(storedToken.split(".")[1]));
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+          // Token expired — clear and force re-login
+          localStorage.removeItem("kolorpaper_admin_token");
+          localStorage.removeItem("kolorpaper_admin_user");
+          setInitializing(false);
+          return;
+        }
+      } catch {
+        // Malformed token — clear and force re-login
+        localStorage.removeItem("kolorpaper_admin_token");
+        localStorage.removeItem("kolorpaper_admin_user");
+        setInitializing(false);
+        return;
+      }
+
       setToken(storedToken);
-      setAdmin(JSON.parse(storedAdmin));
+      try {
+        setAdmin(JSON.parse(storedAdmin));
+      } catch {
+        // Corrupted admin data — clear
+        localStorage.removeItem("kolorpaper_admin_user");
+      }
     }
     setInitializing(false);
   }, []);

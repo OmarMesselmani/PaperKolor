@@ -31,6 +31,8 @@ app.use(
   cors({
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps, curl, Postman, etc.)
+      // NOTE (Production): Consider restricting no-origin requests in production
+      // to prevent automated abuse. Cloudflare WAF can handle this at edge level.
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin) || allowedOrigins.includes("*")) {
         callback(null, true);
@@ -65,8 +67,9 @@ app.use("/uploads", (req: Request, res: Response, next: NextFunction) => {
       const url = new URL(referer as string);
       const refererHostname = url.hostname.toLowerCase();
       
-      // Allow localhost, local network IPs, and search engine image crawls
-      const allowedLocalHostnames = ["localhost", "127.0.0.1", "192.168.0.171"];
+      // Allow localhost, local network, and configured trusted hosts
+      const envTrustedHosts = process.env.TRUSTED_HOSTS?.split(",").map(h => h.trim().toLowerCase()) || [];
+      const allowedLocalHostnames = ["localhost", "127.0.0.1", ...envTrustedHosts];
       const isLocal = allowedLocalHostnames.some(local => refererHostname === local || refererHostname.endsWith(local));
       
       const isSearchEngine = refererHostname.includes("google.") || 
