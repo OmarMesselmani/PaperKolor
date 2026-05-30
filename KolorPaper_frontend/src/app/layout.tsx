@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { getAllCategories } from "@/lib/data";
 import LayoutWrapper from "@/components/LayoutWrapper";
+import Script from "next/script";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kolorpaper.com';
 
@@ -104,6 +105,23 @@ export default async function RootLayout({
             {children}
           </LayoutWrapper>
         </ThemeProvider>
+
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}');
+              `}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   );

@@ -63,7 +63,7 @@ export async function generateMetadata({
   if (category) {
     const url = `${siteUrl}/${slug.join('/')}`;
     const title = `${category.title} Coloring Pages - Free Printable`;
-    const description = `Explore our collection of free printable ${category.title} coloring pages for kids and adults. Download and print high-quality coloring sheets.`;
+    const description = category.description || `Explore our collection of free printable ${category.title} coloring pages for kids and adults. Download and print high-quality coloring sheets.`;
     return {
       title,
       description,
@@ -121,11 +121,10 @@ export default async function DynamicPage({
   if (coloringPage) {
     const targetSlug = coloringPage.subCategorySlug || coloringPage.categorySlug;
     const allPages = await getColoringPages(targetSlug);
-    let relatedPages = allPages.filter(p => p.id !== coloringPage.id);
-    if (relatedPages.length === 0 && coloringPage.subCategorySlug) {
-      const parentPages = await getColoringPages(coloringPage.categorySlug);
-      relatedPages = parentPages.filter(p => p.id !== coloringPage.id);
-    }
+    let relatedPages = allPages
+      .filter(p => p.id !== coloringPage.id)
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 4);
 
     return (
       <>
@@ -179,7 +178,7 @@ export default async function DynamicPage({
               <p className="text-sm sm:text-base leading-relaxed text-gray-500 dark:text-gray-400 mb-6">{coloringPage.description}</p>
 
               <div className="flex gap-4 flex-wrap print:hidden">
-                <PrintButton slug={coloringPage.slug} />
+                <PrintButton slug={coloringPage.slug} imageUrl={coloringPage.imageUrl} title={coloringPage.title} />
                 <DownloadPdf imageUrl={coloringPage.imageUrl} title={coloringPage.title} pdfUrl={coloringPage.pdfUrl} slug={coloringPage.slug} />
                 <DownloadImageButton imageUrl={coloringPage.imageUrl} title={coloringPage.title} slug={coloringPage.slug} />
                 <LikeButton slug={coloringPage.slug} initialLikes={coloringPage.likes} />
@@ -224,43 +223,6 @@ export default async function DynamicPage({
 
                   {coloringPage.ageGroup && (
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-sm border ${coloringPage.ageGroup === 'adults'
-                          ? 'bg-purple-500/10 border-purple-500/20 text-purple-600 dark:text-purple-400'
-                          : 'bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400'
-                        }`}>
-                        {coloringPage.ageGroup === 'adults' ? (
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            {/* Face circle */}
-                            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.1" />
-                            {/* Cool hair / haircut outline */}
-                            <path d="M6 10c0-4 3-7 6-7s6 3 6 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                            {/* Eyes */}
-                            <circle cx="9.5" cy="11.5" r="1" fill="currentColor" />
-                            <circle cx="14.5" cy="11.5" r="1" fill="currentColor" />
-                            {/* Smart glasses frames */}
-                            <circle cx="9.5" cy="11.5" r="2.2" stroke="currentColor" strokeWidth="1.5" />
-                            <circle cx="14.5" cy="11.5" r="2.2" stroke="currentColor" strokeWidth="1.5" />
-                            <path d="M11.7 11.5h.6" stroke="currentColor" strokeWidth="1.5" />
-                            {/* Smile */}
-                            <path d="M10 16h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                          </svg>
-                        ) : (
-                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            {/* Face circle */}
-                            <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.1" />
-                            {/* Hair curl on top */}
-                            <path d="M12 3c-1-1-1.5-1.5-1.5-2a1.5 1.5 0 0 1 3 0c0 .5-.5 1-1.5 2" stroke="currentColor" strokeWidth="2" />
-                            {/* Eyes */}
-                            <circle cx="9" cy="11.5" r="1.2" fill="currentColor" />
-                            <circle cx="15" cy="11.5" r="1.2" fill="currentColor" />
-                            {/* Smile */}
-                            <path d="M9.5 15c.8 1.2 2.2 1.2 3 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                            {/* Rosy cheeks */}
-                            <circle cx="6.5" cy="13.5" r="1" fill="#f43f5e" fillOpacity="0.6" />
-                            <circle cx="17.5" cy="13.5" r="1" fill="#f43f5e" fillOpacity="0.6" />
-                          </svg>
-                        )}
-                      </div>
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Age Group</span>
                         <span className="font-bold text-gray-800 dark:text-gray-200 capitalize">
@@ -320,14 +282,19 @@ export default async function DynamicPage({
       <>
         <div className="max-w-[1240px] mx-auto px-6 pt-8">
           <Breadcrumbs paths={breadcrumbPaths} />
-          <h1 className="text-4xl font-extrabold my-8 text-gray-800 dark:text-gray-100">{category.title}</h1>
+          <h1 className="text-4xl font-extrabold mt-8 mb-3 text-gray-800 dark:text-gray-100">{category.title}</h1>
+          {category.description && (
+            <p className="text-sm sm:text-base leading-relaxed text-gray-500 dark:text-gray-400 mb-8 max-w-3xl">
+              {category.description}
+            </p>
+          )}
         </div>
 
         <div className="max-w-[1240px] mx-auto px-6">
           {subCategories.length > 0 && (
             <div className="mb-16">
               <h2 className="text-3xl font-bold mb-6 text-gray-800 dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-6 before:bg-purple-600 before:rounded-sm">Subcategories</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-16">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pb-16">
                 {subCategories.map(sub => <CategoryCard key={sub.id} category={sub} />)}
               </div>
             </div>
@@ -339,7 +306,7 @@ export default async function DynamicPage({
                 <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-3 before:content-[''] before:block before:w-1 before:h-6 before:bg-purple-600 before:rounded-sm">Coloring Pages</h2>
                 <FilterDrawer />
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 pb-16">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 pb-16">
                 {pages.map(page => <ColoringCard key={page.id} page={page} />)}
               </div>
             </div>

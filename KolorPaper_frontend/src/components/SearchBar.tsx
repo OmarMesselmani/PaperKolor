@@ -3,7 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-export default function SearchBar() {
+interface SearchBarProps {
+  onSearch?: () => void;
+}
+
+export default function SearchBar({ onSearch }: SearchBarProps) {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -12,6 +16,9 @@ export default function SearchBar() {
     e.preventDefault();
     if (query.trim()) {
       router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+      if (onSearch) {
+        onSearch();
+      }
     }
   };
 

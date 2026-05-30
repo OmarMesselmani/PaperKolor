@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { Category } from '@/types';
+import SearchBar from './SearchBar';
+import DarkModeToggle from './DarkModeToggle';
 
 export default function NavMenu({ categories }: { categories: Category[] }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -80,6 +82,14 @@ export default function NavMenu({ categories }: { categories: Category[] }) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar bg-white dark:bg-gray-900">
+          {/* Mobile Search & Dark Mode Toggle */}
+          <div className="flex sm:hidden items-center gap-3 px-2 pb-4 mb-4 border-b border-purple-600/10 dark:border-white/10">
+            <div className="flex-1">
+              <SearchBar onSearch={() => setIsOpen(false)} />
+            </div>
+            <DarkModeToggle />
+          </div>
+
           <Link
             href="/"
             className="flex items-center gap-4 px-4 py-3.5 hover:bg-purple-600/5 dark:hover:bg-purple-500/10 hover:text-purple-600 dark:hover:text-purple-400 rounded-2xl transition-all font-bold text-gray-700 dark:text-gray-300 group"
@@ -88,13 +98,7 @@ export default function NavMenu({ categories }: { categories: Category[] }) {
             Home
           </Link>
 
-          <Link
-            href="/blog"
-            className="flex items-center gap-4 px-4 py-3.5 hover:bg-purple-600/5 dark:hover:bg-purple-500/10 hover:text-purple-600 dark:hover:text-purple-400 rounded-2xl transition-all font-bold text-gray-700 dark:text-gray-300 group"
-            onClick={() => setIsOpen(false)}
-          >
-            Blog
-          </Link>
+
           
           <div className="h-px bg-purple-600/5 dark:bg-white/5 my-4 mx-4" />
           

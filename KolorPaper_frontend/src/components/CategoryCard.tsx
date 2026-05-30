@@ -53,7 +53,7 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
       )}
 
       {/* Image area */}
-      <div className="relative h-60 bg-gradient-to-tr from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-850 flex items-center justify-center text-8xl transition-transform duration-500 group-hover:scale-105 overflow-hidden">
+      <div className="relative h-36 sm:h-60 bg-gradient-to-tr from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-850 flex items-center justify-center text-8xl transition-transform duration-500 group-hover:scale-105 overflow-hidden">
         {category.imageUrl ? (
           <Image src={category.imageUrl} alt={`${category.title} free printable coloring pages`} fill sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw" className="object-cover" />
         ) : (
@@ -62,17 +62,17 @@ export default function CategoryCard({ category, index = 0 }: { category: Catego
       </div>
 
       {/* Info area */}
-      <div className="p-5 bg-white dark:bg-gray-900 border-t border-black/5 dark:border-white/5">
-        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 text-center mb-1">
+      <div className="p-3 sm:p-5 bg-white dark:bg-gray-900 border-t border-black/5 dark:border-white/5">
+        <h3 className="text-sm sm:text-xl font-bold text-gray-800 dark:text-gray-100 text-center mb-0.5 sm:mb-1 truncate">
           {category.title}
         </h3>
-        <p className="text-sm font-medium text-purple-600 dark:text-purple-400 text-center mb-3">
+        <p className="text-xs sm:text-sm font-medium text-purple-600 dark:text-purple-400 text-center mb-1.5 sm:mb-3">
           ({pageCount}) pages
         </p>
 
         {/* Stats row */}
         {(category.downloads !== undefined || category.likes !== undefined) && (
-          <div className="flex items-center justify-center gap-4 text-xs font-semibold text-gray-400 dark:text-gray-500">
+          <div className="flex items-center justify-center gap-3 sm:gap-4 text-[10px] sm:text-xs font-semibold text-gray-400 dark:text-gray-500">
             {category.downloads !== undefined && (
               <span className="flex items-center gap-1">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">

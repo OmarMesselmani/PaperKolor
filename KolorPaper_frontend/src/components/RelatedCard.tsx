@@ -35,7 +35,7 @@ export default function RelatedCard({ page }: RelatedCardProps) {
           {page.title}
         </h4>
         <span className="text-[10px] font-bold text-orange-500 uppercase tracking-wider">
-          Free Print 🖨️
+          Free Print
         </span>
       </div>
     </Link>

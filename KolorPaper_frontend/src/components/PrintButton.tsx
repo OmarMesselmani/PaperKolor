@@ -1,8 +1,46 @@
 'use client';
 
-export default function PrintButton({ slug }: { slug: string }) {
-  const handlePrint = () => {
-    window.print();
+interface PrintButtonProps {
+  slug: string;
+  imageUrl: string;
+  title: string;
+}
+
+export default function PrintButton({ slug, imageUrl, title }: PrintButtonProps) {
+  const handlePrint = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // Create a hidden iframe to print the full-size image only
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+    
+    const doc = iframe.contentWindow?.document;
+    if (doc) {
+      doc.open();
+      doc.write(`
+        <html>
+          <head>
+            <title>Print Coloring Page - ${title}</title>
+            <style>
+              @page { margin: 0; }
+              body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: white; }
+              img { max-width: 100%; max-height: 100%; object-fit: contain; }
+            </style>
+          </head>
+          <body>
+            <img src="${imageUrl}" onload="window.print(); setTimeout(() => { window.parent.document.body.removeChild(window.frameElement); }, 100);" />
+          </body>
+        </html>
+      `);
+      doc.close();
+    }
+
     // Track print as download
     const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
     fetch(`${API_URL}/pages/${slug}/download`, { method: 'POST' }).catch(err => console.error("Failed to track print download", err));

@@ -3,25 +3,41 @@ import { getAllCategories, getColoringPages } from "@/lib/data";
 import ColoringCard from "./ColoringCard";
 
 export default async function SeeMore({ currentPage }: { currentPage: ColoringPage }) {
-  const allTopCategories = (await getAllCategories()).filter(c => !c.parentSlug);
-  const otherCategories = allTopCategories.filter(c => c.slug !== currentPage.categorySlug);
+  const sameCategoryPages = await getColoringPages(currentPage.categorySlug);
 
-  const seenIds = new Set<string>([currentPage.id]);
+  let candidatePages = sameCategoryPages.filter(p => {
+    if (currentPage.subCategorySlug) {
+      return p.subCategorySlug !== currentPage.subCategorySlug;
+    }
+    return p.id !== currentPage.id;
+  });
+
+  candidatePages = candidatePages.sort(() => 0.5 - Math.random());
+
   const result: ColoringPage[] = [];
+  const seenIds = new Set<string>([currentPage.id]);
 
-  for (const cat of otherCategories) {
+  for (const p of candidatePages) {
     if (result.length >= 4) break;
-    const pages = await getColoringPages(cat.slug);
-    const page = pages.find(p => !seenIds.has(p.id));
-    if (page) {
-      seenIds.add(page.id);
-      result.push(page);
+    if (!seenIds.has(p.id)) {
+      seenIds.add(p.id);
+      result.push(p);
     }
   }
 
   if (result.length < 4) {
-    const sameCategoryPages = await getColoringPages(currentPage.categorySlug);
-    for (const p of sameCategoryPages) {
+    const allTopCategories = (await getAllCategories()).filter(c => !c.parentSlug);
+    const otherCategories = allTopCategories.filter(c => c.slug !== currentPage.categorySlug);
+    
+    let otherPages: ColoringPage[] = [];
+    for (const cat of otherCategories) {
+      const pages = await getColoringPages(cat.slug);
+      otherPages = otherPages.concat(pages);
+    }
+    
+    otherPages = otherPages.sort(() => 0.5 - Math.random());
+    
+    for (const p of otherPages) {
       if (result.length >= 4) break;
       if (!seenIds.has(p.id)) {
         seenIds.add(p.id);
